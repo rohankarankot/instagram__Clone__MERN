@@ -6,6 +6,12 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../keys");
 
+const requireLogin = require("../middleWares/requireLogin");
+
+router.get("/protected", requireLogin, (req, res) => {
+  res.send("proctected acced hello user");
+});
+
 router.post("/signup", (req, res) => {
   const { name, password, email } = req.body;
 
@@ -51,13 +57,9 @@ router.post("/signin", (req, res) => {
       .compare(password, saved__User.password)
       .then((do__Match) => {
         if (do__Match) {
-          const token = jwt.sign({ id: saved__User._id }, JWT_SECRET);
+          const token = jwt.sign({ _id: saved__User._id }, JWT_SECRET);
 
-          res.json({
-            bol: do__Match,
-            message: "logged in",
-            token: "" + token,
-          });
+          res.json({ token });
         } else {
           res.status(422).json({
             error: "Invalid email or password",
@@ -65,7 +67,7 @@ router.post("/signin", (req, res) => {
         }
       })
       .then((err) => {
-        console.log(err);
+        console.log("error");
       });
   });
 });
